@@ -1,7 +1,7 @@
 {
   "name": "sprint_12",
   "version": "1.0.0",
-  "description": "",
+  "description": "First Express Project",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
