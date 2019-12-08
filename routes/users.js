@@ -6,15 +6,15 @@ const users = fs.readFileSync(path.join(__dirname, '../data/users.json'), { enco
 const router = require('express').Router();
 
 router.get('/users', (req, res) => {
-  res.send(users);
+  res.json(users);
 });
 
 router.get('/users/:id', (req, res) => {
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < users.length; i++) {
+  const { id } = req.params;
+  for (let i = 0; i < users.length; i += 1) {
     // eslint-disable-next-line no-underscore-dangle
-    if (users[i]._id === req.params.id) {
-      res.send(users[i]);
+    if (users[i]._id === id) {
+      res.json(users[i]);
       return;
     }
   }

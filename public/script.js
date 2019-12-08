@@ -1,13 +1,14 @@
+const userInfo = document.querySelector('.user-info__name');
+const userJob = document.querySelector('.user-info__job');
 
 class API {
   constructor(request) {
     this.request = request;
   }
 
-  CardsNAddPlace(url, auth, contentType) {
+  CardsNAddPlace(url, auth) {
     return fetch(`${url}/cards`, {
       headers: {
-        /* Можно лучше: настройки сервера передаются в конструктор класса, лучше использовать их */
         authorization: `${auth}`,
       },
     })
@@ -28,8 +29,6 @@ class API {
         'Content-Type': `${this.request.headers.ContentType}`,
       },
       body: JSON.stringify({
-        /* Можно лучше: данные пользователя должны передаваться как параметры метода, а не браться
-                из полей формы здесь напрямую */
         name: `${popupEdit.formWithin.name.value}`,
         about: `${popupEdit.formWithin.job.value}`,
       }),
@@ -169,8 +168,9 @@ class CardList {
   }
 
   render() {
-    for (let i = 0; i < this.masCards.length; i++) {
-      this.addCard(new Card(this.masCards[i].name, this.masCards[i].link, this.masCards[i].likes.length).card);
+    for (let i = 0; i < this.masCards.length; i += 1) {
+      this.addCard(new Card(this.masCards[i].name, this.masCards[i].link,
+        this.masCards[i].likes.length).card);
     }
   }
 }
@@ -184,12 +184,9 @@ const session = new API({
   },
 });
 
-
+const popupEdit = new Popup(document.querySelector('.popup-edit'));
 const formButton = document.querySelector('.user-info__button');
 const editButton = document.querySelector('.user-info__edit-button');
-const userInfo = document.querySelector('.user-info__name');
-const userJob = document.querySelector('.user-info__job');
-const popupEdit = new Popup(document.querySelector('.popup-edit'));
 const popupNewPlace = new Popup(document.querySelector('.popup-newPlace'));
 const pictureBlur = new Popup(document.querySelector('.background-blur'));
 const initialCards = [];
@@ -197,7 +194,8 @@ let cardList = null;
 
 
 session.setUser();
-session.CardsNAddPlace(session.request.baseUrl, session.request.headers.authorization, session.request.headers.ContentType)
+session.CardsNAddPlace(session.request.baseUrl,
+  session.request.headers.authorization, session.request.headers.ContentType)
   .then((res) => {
     res.forEach((value) => {
       initialCards.push(value);
@@ -227,13 +225,13 @@ popupNewPlace.formWithin.addEventListener('submit', (event) => {
       } return Promise.reject(res.status);
     })
     .then(() => {
-      cardList.addCard(new Card(popupNewPlace.formWithin.namePlace.value, popupNewPlace.formWithin.link.value).card);
+      cardList.addCard(new Card(popupNewPlace.formWithin.namePlace.value,
+        popupNewPlace.formWithin.link.value).card);
       popupNewPlace.close();
       popupNewPlace.formWithin.reset();
       popupNewPlace.formWithin.submitNew.textContent = '+';
     })
     .then(() => {
-      /* Этот слушатель вынести из промиса не получается, потому что тогда cardList не успеет стать экземпляром класса и будет равен null */
       cardList.container.addEventListener('click', (event) => {
         if (event.target.classList.contains('place-card__image')) {
           pictureBlur.image = pictureBlur.elem.querySelector('.popup-image');

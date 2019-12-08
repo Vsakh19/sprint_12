@@ -6,7 +6,7 @@ const cards = fs.readFileSync(path.join(__dirname, '../data/cards.json'), { enco
 const router = require('express').Router();
 
 router.get('/cards', (req, res) => {
-  res.send(cards);
+  res.json(cards);
 });
 
 module.exports = router;
