@@ -8,8 +8,8 @@ const userRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("/users",userRouter);
-app.use("/cards",cardsRouter);
+app.use('/users', userRouter);
+app.use('/cards', cardsRouter);
 
 app.listen(PORT);
 
