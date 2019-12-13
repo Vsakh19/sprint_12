@@ -1,0 +1,22 @@
+{
+  "name": "sprint_12",
+  "version": "1.0.0",
+  "description": "First Express Project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "vsakh",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.7.2",
+    "nodemon": "^2.0.1"
+  },
+  "dependencies": {
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0"
+  }
+}
