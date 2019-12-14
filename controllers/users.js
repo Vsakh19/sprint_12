@@ -1,9 +1,10 @@
 const User = require('../models/user').usersModel;
+const mongoose = require('mongoose');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((result) => {
-      res.json({ users: result });
+      res.json(result);
     })
     .catch(() => {
       res.status(500).json({ message: 'Произошла ошибка' });
@@ -11,20 +12,29 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.findUserById = (req, res) => {
-  User.findById(req.params.id)
-    .then((result) => {
-      res.json({ data: result });
-    })
-    .catch(() => {
-      res.status(404).json({ message: 'Пользователь не найден' });
-    });
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    User.findById(req.params.id)
+      .then((result) => {
+        if (result) {
+          res.json({data: result});
+        } else {
+          res.status(404).json({message: 'Пользователь не найден'});
+        }
+      })
+      .catch(() => {
+        res.status(500).json({message: 'Произошла ошибка'});
+      });
+  }
+  else {
+    res.status(404).json({message: 'Некорректный ID'});
+  }
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then(() => {
-      res.json({ message: 'Пользователь успешно создан' });
+      res.status(201).json({ message: 'Пользователь успешно создан' });
     })
     .catch(() => {
       res.status(500).json({ message: 'Произошла ошибка' });
