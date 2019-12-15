@@ -1,5 +1,5 @@
-const User = require('../models/user').usersModel;
 const mongoose = require('mongoose');
+const User = require('../models/user').usersModel;
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -12,21 +12,21 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.findUserById = (req, res) => {
-  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
-    User.findById(req.params.id)
+  const { id } = req.params;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    User.findById(id)
       .then((result) => {
         if (result) {
-          res.json({data: result});
+          res.json({ data: result });
         } else {
-          res.status(404).json({message: 'Пользователь не найден'});
+          res.status(404).json({ message: 'Пользователь не найден' });
         }
       })
       .catch(() => {
-        res.status(500).json({message: 'Произошла ошибка'});
+        res.status(500).json({ message: 'Произошла ошибка' });
       });
-  }
-  else {
-    res.status(404).json({message: 'Некорректный ID'});
+  } else {
+    res.status(404).json({ message: 'Некорректный ID' });
   }
 };
 
