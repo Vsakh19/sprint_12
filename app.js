@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const {createUser, login} = require('./controllers/users');
 
 
 const app = express();
@@ -19,15 +20,10 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   });
 
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5df4e4463dcf92416034ddf2',
-  };
-  next();
-});
 app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
-
+app.post('/', createUser);
+app.post('/login', login);
 
 app.listen(PORT);
 
