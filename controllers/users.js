@@ -36,13 +36,16 @@ module.exports.createUser = (req, res) => {
   const { name, email, password, about, avatar } = req.body;
   bcrypt.hash(password, 10)
     .then((hash)=>{
-      User.create({ name, email, hash, about, avatar })
+      User.create({ name, email, password: hash, about, avatar })
         .then(() => {
-          res.status(201).json({ user: { name, email, hash, about, avatar }});
+          res.status(201).json({ user: { name, email, about, avatar }});
         })
         .catch(() => {
           res.status(500).json({ message: 'Произошла ошибка' });
         });
+    })
+    .catch(err=>{
+      res.status(500).json({ message: 'Произошла ошибка' });
     })
 };
 
@@ -50,7 +53,7 @@ module.exports.login = (req, res) => {
   const {email, password} = req.body;
   User.findOne({email}).select('+password')
     .then((data)=>{
-      if(data.length!==0){
+      if(data){
       bcrypt.compare(password, data.password, (err, result)=>{
         if(result){
           const token = jwt.sign({
@@ -66,4 +69,7 @@ module.exports.login = (req, res) => {
         res.status(401).end();
       }
     })
+    .catch(() => {
+      res.status(500).json({ message: 'Произошла ошибка' });
+    });
 };

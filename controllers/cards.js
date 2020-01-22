@@ -29,22 +29,30 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findById(req.params.cardId)
-    .then(res=>{
-      if (req.user._id===res[0].owner){
-        Card.findByIdAndRemove(req.params.cardId)
-          .then((card) => {
-            if (card) {
-              res.status(204).send();
-            } else {
-              res.status(404).json({ message: 'Карточка не найдена' });
-            }
-          })
-          .catch(() => {
-            res.status(500).json({ message: 'Произошла ошибка' });
-          });
+    .then(result=>{
+      if(result) {
+        if (req.user._id == result[0].owner) {
+          Card.findByIdAndRemove(req.params.cardId)
+            .then((card) => {
+              if (card) {
+                res.status(204).send();
+              } else {
+                res.status(404).json({message: 'Карточка не найдена'});
+              }
+            })
+            .catch(() => {
+              res.status(500).json({message: 'Произошла ошибка'});
+            });
+        }
+        else {
+          res.status(403).end();
+        }
+      }
+      else {
+        res.status(404).json({ message: 'Карточка не найдена' })
       }
     })
     .catch(err=>{
-      res.status(403).end();
+      res.status(400).end();
     })
 };
