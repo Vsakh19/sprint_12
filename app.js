@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const {createUser, login} = require('./controllers/users');
+const { createUser, login } = require('./controllers/users');
 
 
 const app = express();

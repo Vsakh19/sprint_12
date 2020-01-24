@@ -12,13 +12,13 @@ const usersSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    validate: [validator.isEmail, "Invalid email"],
-    unique: true
+    validate: [validator.isEmail, 'Invalid email'],
+    unique: true,
   },
   password: {
     type: String,
     required: true,
-    select: false
+    select: false,
   },
   about: {
     required: true,

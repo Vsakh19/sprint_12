@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const User = require('../models/user').usersModel;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user').usersModel;
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -33,39 +33,46 @@ module.exports.findUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, email, password, about, avatar } = req.body;
+  const {
+    name, email, password, about, avatar,
+  } = req.body;
   bcrypt.hash(password, 10)
-    .then((hash)=>{
-      User.create({ name, email, password: hash, about, avatar })
+    .then((hash) => {
+      User.create({
+        name, email, password: hash, about, avatar,
+      })
         .then(() => {
-          res.status(201).json({ user: { name, email, about, avatar }});
+          res.status(201).json({
+            user: {
+              name, email, about, avatar,
+            },
+          });
         })
         .catch(() => {
           res.status(500).json({ message: 'Произошла ошибка' });
         });
     })
-    .catch(err=>{
+    .catch(() => {
       res.status(500).json({ message: 'Произошла ошибка' });
-    })
+    });
 };
 
 module.exports.login = (req, res) => {
-  const {email, password} = req.body;
-  User.findOne({email}).select('+password')
-    .then((data)=>{
-      if(data){
-      bcrypt.compare(password, data.password, (err, result)=>{
-        if(result){
-          const token = jwt.sign({
-            _id: data._id
-          }, "PassPhrase", {expiresIn: "7d"});
-          res.send({token})
-        }
-        else {
-          res.status(401).end();
-        }
-      })}
-      else {
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password')
+    .then((data) => {
+      if (data) {
+        bcrypt.compare(password, data.password, (err, result) => {
+          if (result) {
+            const token = jwt.sign({
+              _id: data._id,
+            }, 'PassPhrase', { expiresIn: '7d' });
+            res.send({ token });
+          } else {
+            res.status(401).end();
+          }
+        });
+      } else {
         res.status(401).end();
       }
     })
