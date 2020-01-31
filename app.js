@@ -2,8 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { createUser, login } = require('./controllers/users');
-const errors = require('./middlewares/errors');
-const {celebrate, Joi} = require('celebrate');
+const {celebrate, Joi, errors} = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 
@@ -31,7 +30,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required(),
     email:Joi.string().required().email(),
-    password: Joi.string().required().password(),
+    password: Joi.string().required(),
     about: Joi.string().required(),
     avatar: Joi.string().required()
   })
@@ -39,12 +38,15 @@ app.post('/signup', celebrate({
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required(),
-    password: Joi.string().required().password(),
+    password: Joi.string().required(),
   })
 }), login);
 app.use(errorLogger);
 app.use(errors());
-app.use(errors);
+app.use((err, req, res, next) =>{
+  const {statusCode = 500, message} = err;
+  res.status(statusCode).send({message: message});
+});
 
 app.listen(PORT);
 
