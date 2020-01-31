@@ -2,14 +2,20 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user').usersModel;
+const NotFoundError = require('../errors/NotFoundError');
+const InternalServerError = require('../errors/InternalServerError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((result) => {
+      if (!result){
+        throw new NotFoundError("Нет пользователя с таким id");
+      }
       res.json(result);
     })
-    .catch(() => {
-      res.status(500).json({ message: 'Произошла ошибка' });
+    .catch((next) => {
     });
 };
 
@@ -21,20 +27,24 @@ module.exports.findUserById = (req, res) => {
         if (result) {
           res.json({ data: result });
         } else {
-          res.status(404).json({ message: 'Пользователь не найден' });
+          throw new NotFoundError('Пользователь не найден');
         }
       })
-      .catch(() => {
-        res.status(500).json({ message: 'Произошла ошибка' });
+      .catch((next) => {
       });
   } else {
-    res.status(404).json({ message: 'Некорректный ID' });
+    try {
+      throw new NotFoundError('Некорректный ID');
+    }
+    catch (err) {
+      next(err);
+    }
   }
 };
 
 module.exports.createUser = (req, res) => {
   const {
-    name, email, password, about, avatar,
+    name, email, password, about, avatar
   } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => {
@@ -49,12 +59,14 @@ module.exports.createUser = (req, res) => {
           });
         })
         .catch(() => {
-          res.status(500).json({ message: 'Произошла ошибка' });
-        });
+          throw new InternalServerError('Произошла ошибка');
+        })
+        .catch(next);
     })
     .catch(() => {
-      res.status(500).json({ message: 'Произошла ошибка' });
-    });
+      throw new InternalServerError('Произошла ошибка');
+    })
+    .catch(next);
 };
 
 module.exports.login = (req, res) => {
@@ -69,14 +81,12 @@ module.exports.login = (req, res) => {
             }, 'PassPhrase', { expiresIn: '7d' });
             res.send({ token });
           } else {
-            res.status(401).end();
+            throw new UnauthorizedError('Требуется авторизация');
           }
         });
       } else {
-        res.status(401).end();
+        throw new UnauthorizedError('Требуется авторизация');
       }
     })
-    .catch(() => {
-      res.status(500).json({ message: 'Произошла ошибка' });
-    });
+    .catch(next);
 };

@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card').cardsModel;
+const InternalServerError = require('../errors/InternalServerError');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -7,8 +10,9 @@ module.exports.getCards = (req, res) => {
       res.json(result);
     })
     .catch(() => {
-      res.status(500).json({ message: 'Произошла ошибка' });
-    });
+      throw new InternalServerError('Произошла ошибка');
+    })
+    .catch(next)
 };
 
 module.exports.createCard = (req, res) => {
@@ -20,10 +24,16 @@ module.exports.createCard = (req, res) => {
         res.status(201).json({ message: 'Карточка успешно создана' });
       })
       .catch((err) => {
-        res.status(500).json({ message: `Произошла ошибка: ${err.toString()}` });
-      });
+        throw new InternalServerError(`Произошла ошибка: ${err.toString()}`);
+      })
+      .catch(next)
   } else {
-    res.status(404).json({ message: 'Некорректный ID' });
+    try {
+      throw new NotFoundError('Некорректный ID');
+    }
+    catch (err) {
+      next(err);
+    }
   }
 };
 
@@ -37,20 +47,16 @@ module.exports.deleteCard = (req, res) => {
               if (card) {
                 res.status(204).send();
               } else {
-                res.status(404).json({ message: 'Карточка не найдена' });
+                throw new NotFoundError('Карточка не найдена');
               }
             })
-            .catch(() => {
-              res.status(500).json({ message: 'Произошла ошибка' });
-            });
+            .catch(next);
         } else {
-          res.status(403).end();
+          throw new ForbiddenError('Доступ закрыт');
         }
       } else {
-        res.status(404).json({ message: 'Карточка не найдена' });
+        throw new NotFoundError('Карточка не найдена');
       }
     })
-    .catch(() => {
-      res.status(400).end();
-    });
+    .catch(next);
 };
