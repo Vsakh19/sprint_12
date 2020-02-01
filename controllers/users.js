@@ -5,21 +5,21 @@ const User = require('../models/user').usersModel;
 const NotFoundError = require('../errors/NotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const {NODE_ENV, JWT_SECRET } = process.env;
 
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((result) => {
-      if (!result){
-        throw new NotFoundError("Нет пользователя с таким id");
+      if (!result) {
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       res.json(result);
     })
-    .catch((next) => {
-    });
+    .catch(next);
 };
 
-module.exports.findUserById = (req, res) => {
+module.exports.findUserById = (req, res, next) => {
   const { id } = req.params;
   if (mongoose.Types.ObjectId.isValid(id)) {
     User.findById(id)
@@ -30,21 +30,19 @@ module.exports.findUserById = (req, res) => {
           throw new NotFoundError('Пользователь не найден');
         }
       })
-      .catch((next) => {
-      });
+      .catch(next);
   } else {
     try {
       throw new NotFoundError('Некорректный ID');
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
-    name, email, password, about, avatar
+    name, email, password, about, avatar,
   } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => {
@@ -69,7 +67,7 @@ module.exports.createUser = (req, res) => {
     .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password')
     .then((data) => {
@@ -78,7 +76,7 @@ module.exports.login = (req, res) => {
           if (result) {
             const token = jwt.sign({
               _id: data._id,
-            }, 'PassPhrase', { expiresIn: '7d' });
+            }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
             res.send({ token });
           } else {
             throw new UnauthorizedError('Требуется авторизация');
