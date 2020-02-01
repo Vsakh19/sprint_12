@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -41,6 +42,11 @@ app.post('/signin', celebrate({
     password: Joi.string().required(),
   })
 }), login);
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) =>{
