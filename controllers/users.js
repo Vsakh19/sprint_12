@@ -5,7 +5,8 @@ const User = require('../models/user').usersModel;
 const NotFoundError = require('../errors/NotFoundError');
 const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
-const {NODE_ENV, JWT_SECRET } = process.env;
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 
 module.exports.getUsers = (req, res, next) => {

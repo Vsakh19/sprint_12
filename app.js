@@ -29,16 +29,16 @@ app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required(),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    about: Joi.string().required(),
-    avatar: Joi.string().required(),
+    about: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required().pattern(new RegExp('^(https?:\\/\\/)(www\\.)?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|[\\w-]{2,}(\\.\\w{2,})+)(:\\d{2,5})?(((\\/[0-9a-zA-Z]+\\/?)+)?#?)?$')),
   }),
 }), createUser);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
@@ -46,6 +46,13 @@ app.get('/crash-test', () => {
   setTimeout(() => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
+});
+app.use((req, res, next) => {
+  try {
+    throw new NotFoundError('Запрашиваемый ресурс не найден');
+  } catch (err) {
+    next(err);
+  }
 });
 app.use(errorLogger);
 app.use(errors());
@@ -55,11 +62,3 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT);
-
-app.use((req, res, next) => {
-  try {
-    throw new NotFoundError('Запрашиваемый ресурс не найден');
-  } catch (err) {
-    next(err);
-  }
-});
