@@ -33,7 +33,7 @@ app.post('/signup', celebrate({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required().pattern(new RegExp('^(https?:\\/\\/)(www\\.)?(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|[\\w-]{2,}(\\.\\w{2,})+)(:\\d{2,5})?(((\\/[0-9a-zA-Z]+\\/?)+)?#?)?$')),
+    avatar: Joi.string().required().pattern(new RegExp('https?://(www.)?[-a-zA-Z0-9@:%.+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%+.~#?&//=]*)')),
   }),
 }), createUser);
 app.post('/signin', celebrate({
