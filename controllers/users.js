@@ -80,11 +80,15 @@ module.exports.login = (req, res, next) => {
             }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
             res.send({ token });
           } else {
-            throw new UnauthorizedError('Требуется авторизация');
+            try {
+              throw new UnauthorizedError('Ошибка авторизации');
+            } catch (error) {
+              next(err);
+            }
           }
         });
       } else {
-        throw new UnauthorizedError('Требуется авторизация');
+        throw new UnauthorizedError('Ошибка авторизации');
       }
     })
     .catch(next);
