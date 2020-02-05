@@ -83,7 +83,7 @@ module.exports.login = (req, res, next) => {
             try {
               throw new UnauthorizedError('Ошибка авторизации');
             } catch (error) {
-              next(err);
+              next(error);
             }
           }
         });
