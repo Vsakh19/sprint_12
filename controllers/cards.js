@@ -4,7 +4,7 @@ const InternalServerError = require('../errors/InternalServerError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((result) => {
       res.json(result);
@@ -12,10 +12,10 @@ module.exports.getCards = (req, res) => {
     .catch(() => {
       throw new InternalServerError('Произошла ошибка');
     })
-    .catch(next)
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const id = req.user._id;
   if (mongoose.Types.ObjectId.isValid(id)) {
@@ -26,18 +26,17 @@ module.exports.createCard = (req, res) => {
       .catch((err) => {
         throw new InternalServerError(`Произошла ошибка: ${err.toString()}`);
       })
-      .catch(next)
+      .catch(next);
   } else {
     try {
       throw new NotFoundError('Некорректный ID');
-    }
-    catch (err) {
+    } catch (err) {
       next(err);
     }
   }
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((result) => {
       if (result) {
